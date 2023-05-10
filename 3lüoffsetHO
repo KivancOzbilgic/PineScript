@@ -1,0 +1,22 @@
+//@version=5
+indicator(title="MovAvg", shorttitle="MA", overlay=true, timeframe="", timeframe_gaps=true)
+len = input.int(20, minval=1, title="MA Length")
+srcm = input(close, title="Source")
+offset1 = input.int(title="Y İleri Offset", defval=5, minval=-500, maxval=500)
+offset2 = input.int(title="Z Geri Offset", defval=-5, minval=-500, maxval=500)
+
+ma(source, length, type) =>
+    switch type
+        "SMA" => ta.sma(source, length)
+        "EMA" => ta.ema(source, length)
+        "SMMA (RMA)" => ta.rma(source, length)
+        "WMA" => ta.wma(source, length)
+        "VWMA" => ta.vwma(source, length)
+
+typeMA = input.string(title = "Method", defval = "EMA", options=["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="Smoothing")
+
+ma1 = ma(srcm, len, typeMA)
+plot(ma1, title="MA1", color=#2040f3)
+plot(ma1, title="MA1", color=#f32020, offset=offset1)
+plot(ma1, title="MA2", color=#12e424, offset=offset2)
+
