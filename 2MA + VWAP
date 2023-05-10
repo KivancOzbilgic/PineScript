@@ -6,12 +6,12 @@ srcm = input(close, title="Source")
 offset = input.int(title="Offset", defval=0, minval=-500, maxval=500)
 
 ma(source, length, type) =>
-switch type
-"SMA" => ta.sma(source, length)
-"EMA" => ta.ema(source, length)
-"SMMA (RMA)" => ta.rma(source, length)
-"WMA" => ta.wma(source, length)
-"VWMA" => ta.vwma(source, length)
+    switch type
+        "SMA" => ta.sma(source, length)
+        "EMA" => ta.ema(source, length)
+        "SMMA (RMA)" => ta.rma(source, length)
+        "WMA" => ta.wma(source, length)
+        "VWMA" => ta.vwma(source, length)
 
 typeMA = input.string(title = "Method", defval = "SMA", options=["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="Smoothing")
 
@@ -23,7 +23,7 @@ plot(ma2, title="MA2", color=#1227e4, offset=offset)
 
 hideonDWM = input(false, title="Hide VWAP on 1D or Above", group="VWAP Settings")
 var anchor = input.string(defval = "Session", title="Anchor Period",
-options=["Session", "Week", "Month", "Quarter", "Year", "Decade", "Century", "Earnings", "Dividends", "Splits"], group="VWAP Settings")
+ options=["Session", "Week", "Month", "Quarter", "Year", "Decade", "Century", "Earnings", "Dividends", "Splits"], group="VWAP Settings")
 src = input(title = "Source", defval = hlc3, group="VWAP Settings")
 
 
@@ -35,28 +35,28 @@ showBand_3 = input(false, title="", group="Standard Deviation Bands Settings", i
 stdevMult_3 = input(3.0, title="Bands Multiplier #3", group="Standard Deviation Bands Settings", inline="band_3")
 
 if barstate.islast and ta.cum(volume) == 0
-runtime.error("No volume is provided by the data vendor.")
+    runtime.error("No volume is provided by the data vendor.")
 
 new_earnings = request.earnings(syminfo.tickerid, earnings.actual, barmerge.gaps_on, barmerge.lookahead_on, ignore_invalid_symbol=true)
 new_dividends = request.dividends(syminfo.tickerid, dividends.gross, barmerge.gaps_on, barmerge.lookahead_on, ignore_invalid_symbol=true)
 new_split = request.splits(syminfo.tickerid, splits.denominator, barmerge.gaps_on, barmerge.lookahead_on, ignore_invalid_symbol=true)
 
 isNewPeriod = switch anchor
-"Earnings" => not na(new_earnings)
-"Dividends" => not na(new_dividends)
-"Splits" => not na(new_split)
-"Session" => timeframe.change("D")
-"Week" => timeframe.change("W")
-"Month" => timeframe.change("M")
-"Quarter" => timeframe.change("3M")
-"Year" => timeframe.change("12M")
-"Decade" => timeframe.change("12M") and year % 10 == 0
-"Century" => timeframe.change("12M") and year % 100 == 0
-=> false
+	"Earnings"  => not na(new_earnings)
+	"Dividends" => not na(new_dividends)
+	"Splits"    => not na(new_split)
+	"Session"   => timeframe.change("D")
+	"Week"      => timeframe.change("W")
+	"Month"     => timeframe.change("M")
+	"Quarter"   => timeframe.change("3M")
+	"Year"      => timeframe.change("12M")
+	"Decade"    => timeframe.change("12M") and year % 10 == 0
+	"Century"   => timeframe.change("12M") and year % 100 == 0
+	=> false
 
 isEsdAnchor = anchor == "Earnings" or anchor == "Dividends" or anchor == "Splits"
 if na(src[1]) and not isEsdAnchor
-isNewPeriod := true
+	isNewPeriod := true
 
 float vwapValue = na
 float upperBandValue1 = na
@@ -67,26 +67,26 @@ float upperBandValue3 = na
 float lowerBandValue3 = na
 
 if not (hideonDWM and timeframe.isdwm)
-[_vwap, _stdevUpper, _] = ta.vwap(src, isNewPeriod, 1)
-vwapValue := _vwap
-stdevAbs = _stdevUpper - _vwap
-upperBandValue1 := _vwap + stdevAbs * stdevMult_1
-lowerBandValue1 := _vwap - stdevAbs * stdevMult_1
-upperBandValue2 := _vwap + stdevAbs * stdevMult_2
-lowerBandValue2 := _vwap - stdevAbs * stdevMult_2
-upperBandValue3 := _vwap + stdevAbs * stdevMult_3
-lowerBandValue3 := _vwap - stdevAbs * stdevMult_3
+    [_vwap, _stdevUpper, _] = ta.vwap(src, isNewPeriod, 1)
+	vwapValue := _vwap
+    stdevAbs = _stdevUpper - _vwap
+	upperBandValue1 := _vwap + stdevAbs * stdevMult_1
+	lowerBandValue1 := _vwap - stdevAbs * stdevMult_1
+	upperBandValue2 := _vwap + stdevAbs * stdevMult_2
+	lowerBandValue2 := _vwap - stdevAbs * stdevMult_2
+	upperBandValue3 := _vwap + stdevAbs * stdevMult_3
+	lowerBandValue3 := _vwap - stdevAbs * stdevMult_3
 
 plot(vwapValue, title="VWAP", color=#2962FF, offset=offset)
 
 upperBand_1 = plot(upperBandValue1, title="Upper Band #1", color=color.green, offset=offset, display = showBand_1 ? display.all : display.none)
 lowerBand_1 = plot(lowerBandValue1, title="Lower Band #1", color=color.green, offset=offset, display = showBand_1 ? display.all : display.none)
-fill(upperBand_1, lowerBand_1, title="Bands Fill #1", color= color.new(color.green, 95) , display = showBand_1 ? display.all : display.none)
+fill(upperBand_1, lowerBand_1, title="Bands Fill #1", color= color.new(color.green, 95)    , display = showBand_1 ? display.all : display.none)
 
 upperBand_2 = plot(upperBandValue2, title="Upper Band #2", color=color.olive, offset=offset, display = showBand_2 ? display.all : display.none)
 lowerBand_2 = plot(lowerBandValue2, title="Lower Band #2", color=color.olive, offset=offset, display = showBand_2 ? display.all : display.none)
-fill(upperBand_2, lowerBand_2, title="Bands Fill #2", color= color.new(color.olive, 95) , display = showBand_2 ? display.all : display.none)
+fill(upperBand_2, lowerBand_2, title="Bands Fill #2", color= color.new(color.olive, 95)    , display = showBand_2 ? display.all : display.none)
 
 upperBand_3 = plot(upperBandValue3, title="Upper Band #3", color=color.teal, offset=offset, display = showBand_3 ? display.all : display.none)
 lowerBand_3 = plot(lowerBandValue3, title="Lower Band #3", color=color.teal, offset=offset, display = showBand_3 ? display.all : display.none)
-fill(upperBand_3, lowerBand_3, title="Bands Fill #3", color= color.new(color.teal, 95) , display = showBand_3 ? display.all : display.none)
+fill(upperBand_3, lowerBand_3, title="Bands Fill #3", color= color.new(color.teal, 95)    , display = showBand_3 ? display.all : display.none)
